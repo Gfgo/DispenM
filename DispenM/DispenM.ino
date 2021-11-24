@@ -201,12 +201,12 @@ HX711 scale;
   #include <avr/power.h>
 #endif
 #define PIN      13                              //Pin control led celular 270gr 0.27kg
-#define NUMpixel 8                              //Pixeles de la tira
+#define NUMPIXEL 8                              //Pixeles de la tira
 
-Adafruit_NeoPixel indlleno = Adafruit_NeoPixel(NUMpixel, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel indlleno(NUMPIXEL, PIN, NEO_GRBW + NEO_KHZ800);
 #define DELAYVAL 500                                  
 
-const int DT = A0;
+const int DT = A0;                            // variable modulo celda
 const int SCK1 = A1;
 int peso=0;                                  // variable de peso
 //Variables barra de luz-----------------------------------------------------------
@@ -241,20 +241,25 @@ void setup() {
   for (int i=0;i<=10;i++)
   {Serial.print (". ");
   delay(200);}
+
+  indlleno.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  indlleno.show();
+  indlleno.setBrightness(10); 
 }
 
 void loop() {
-  Serial.print("one reading:\t");
+  Serial.print("Lectura:\t");
   Serial.print(scale.get_units(), 1);
-  Serial.print("\t| average:\t");
+  Serial.print("\t| Promedio:\t");
   Serial.println(scale.get_units(10), 1);
 
   peso=scale.get_units(10);                        //leo peso en A0
+  
   nump=map(peso, 0, 90, 0, 8);
 
   Serial.println(peso);
   Serial.println(nump);
-  
+//-------------------------------------------------------------luces   
   indlleno.clear();
   for(int i=0;i<nump;i++) {                   //  for(int i=0; (i<nump|| i<nump2); i++)
     if (i<=1) rojo=0;
@@ -268,6 +273,7 @@ void loop() {
     indlleno.show();
     delay(PAUSA);
   }
+//-------------------------------------------------------------
 //  scale.power_down();              // put the ADC in sleep mode
 //  delay(500);
 //  scale.power_up();

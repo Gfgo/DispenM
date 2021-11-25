@@ -1,280 +1,143 @@
-//#include <HX711.h>
-//#include <LiquidCrystal.h>
-//#include <Servo.h>
-//#include <Adafruit_NeoPixel.h>
-//
-//#ifdef __AVR__
-//  #include <avr/power.h>
-//#endif
-//#define PIN      13                              //Pin control led celular 270gr 0.27kg
-//#define NUMpixel 8                              //Pixeles de la tira
-//
-//Adafruit_NeoPixel indlleno = Adafruit_NeoPixel(NUMpixel, PIN, NEO_GRB + NEO_KHZ800);
-//#define DELAYVAL 500                                  
-//
-////#include "BluetoothSerial.h"                      //Envio por BLE de Solicitud de apertura 
-////#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-////#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-////#endif
-//
-//LiquidCrystal lcd(12,11,5,4,3,2);        //lcd
-//
-////BluetoothSerial SerialBT;
-//Servo servo;                                 //Objeto servo
-//Servo servo2;
-//int pos=0;                                   // variable de posición de servo
-//
-////Variables de espera dato---------------------------------------------------------
-//byte opc=0;                                  //Seleccion de opcion
-//String datoSerEve= "";  
-//bool findatoSerEve= false;                  //Si el string esta completo (SerEve)
-////---------------------------------------------------------------------------------
-////Variables barra de luz-----------------------------------------------------------
-//byte nump=0;                                 //barra de luz
-//byte rojo=0;
-//byte verde=0;
-//byte azul=0;
-//const byte PAUSA=0;
-////---------------------------------------------------------------------------------
-//HX711 balanza;
-////Variables balanza----------------------------------------------------------------
-//const int DT = A0;
-//const int SCK1 = A1;
-////---------------------------------------------------------------------------------
-//
-//int peso=0;                                  // variable de peso
-//
-//void setup() {
-////  SerialBT.begin(115200);                   // inicio bluetooth
-//  Serial.begin(115200);
-////  SerialBT.begin("DispenM");          // Nombre dispositivo
-////  SerialBT.println("Conexion disponible");
-//  Serial.println("Conexion disponible");
-//  Serial.println("Calibrando Balanza por favor espere ... No coloque ningun peso");
-////    lcd.begin(16, 2);
-////    lcd.clear();
-////    lcd.print("DispenM");
-////    lcd.setCursor(0,1); 
-////    lcd.print ("V 1.0");
-////  datoSerEve.reserve(200);                      //Guardo 200 bytes para datos de llegada
-////  servo.attach(15);                             //Asigna pin 15 al objeto servo
-////  servo2.attach(4);                             //Asigna pin 4 al objeto servo2
-////  indlleno.begin();                                //Inicia leds
-////  indlleno.setBrightness(20);
-////  indlleno.show();
-//  
-//  balanza.begin(DT, SCK1);
-//  balanza.read();
-//  balanza.read_average(20);   // Realiza 20 lecturas del ADC
-//  balanza.get_value(5);   // Toma 5 valores actual restando el peso de tara
-//  balanza.get_units(5);   // Toma 5 valores actual restado del peso de tara y dividido por la escala
-//           
-//  balanza.set_scale(2649.718382);     // 2280.f es la lectura sobre peso conocido de 1.116Kg
-//  balanza.tare();                     // Balanza a 0
-//                              //Despues de la calibracion
-//                              
-//  balanza.read();                 // Lee valores del ADC
-//  balanza.read_average(10);       // Lee 10 valores y da el promedio del ADC
-//  balanza.get_value(5);        // Toma 5 valores actual restando el peso de tara
-//  balanza.get_units(5);        // Toma 5 valores actual restado del peso de tara y dividido por la escala
-//  for (int i=0;i<=10;i++)
-//  {Serial.print (". ");
-//  delay(200);}
-//  
-//   
-//}
-//void loop() {
-////  SerialBT.println("Seleccione opcion (1) Abrir o (2) Cerrar contenedor");      //Pregunta por opcion
-//  Serial.println("Seleccione opcion (1) Abrir o (2) Cerrar contenedor");      //Pregunta por opcion
-////  serialEvent();
-//    lcd.setCursor(6,1);                                                           //Se situa en fila 2 columna6
-//    lcd.print(millis() / 1000);                                                   //Imprime segundos desde inicio
+#include "HX711.h"
+HX711 scale;
+#include <LiquidCrystal.h>
+#include <Adafruit_NeoPixel.h>
+#include <avr/power.h>
+
+#define PIN       13
+#define NUMPIXEL  8
+Adafruit_NeoPixel indlleno = Adafruit_NeoPixel(NUMPIXEL, PIN, NEO_GRB + NEO_KHZ800);
+
+LiquidCrystal lcd(12,11,5,4,3,2);
+
+const int DT = A0;                            // variable modulo celda
+const int SCK1 = A1;
+int peso=0; 
+int nump=0;
+
+void setup() {
+
+  indlleno.begin();
+  indlleno.setBrightness(10);
+  indlleno.show();
+  scale.begin(DT, SCK1);
+  Serial.begin(115200);
+  Serial.println("Iniciando dispositivo");
+  Serial.println("DispenM V 1.0");
+  scale.begin(DT, SCK1);
+
+  scale.read();
+  scale.read_average(10);   // print the average of 20 readings from the ADC
+  scale.get_value(3);   // print the average of 5 readings from the ADC minus the tare weight (not set yet)
+  scale.get_units(3);  // print the average of 5 readings from the ADC minus tare weight (not set) divided
+            // by the SCALE parameter (not set yet)
+
+  scale.set_scale(2649.718382);     // 2280.fthis value is obtained by calibrating the scale with known weights; see the README for details
+  scale.tare();               // reset the scale to 0
+                              //Despues de la calibracion
+
+    lcd.begin(16, 2);
+    lcd.clear();
+    lcd.write("DispenM V 1.0");
+    delay(500);
+    lcd.setCursor(0,1); 
+    lcd.write("Iniciando dispositivo");
+    delay(200);
+    for (int i=0;i<=10;i++)
+      {lcd.write(". ");
+      lcd.autoscroll();
+      delay(500);}
+    lcd.noAutoscroll();
+    lcd.clear();
+}
+
+void loop() {
+
+  uint32_t rojo = indlleno.Color(150,0,0);
+  uint32_t naranja = indlleno.Color(75,150, 0);
+  uint32_t amarillo = indlleno.Color(200,200, 0);
+  uint32_t amarmen = indlleno.Color(150,75, 0);
+  uint32_t verde = indlleno.Color(0,150,0);
+
+  Serial.print("Lectura:\t");
+  Serial.print(scale.get_units(), 1);
+  Serial.print("\t| Promedio:\t");
+  Serial.println(scale.get_units(5), 1);
+//-------------------------------------------------------------Visualizar valores 
+  lcd.setCursor(0,0);  
+  lcd.write("Lectura: "); lcd.print(scale.get_units(), 1);
+  lcd.setCursor(0,1);
+  lcd.write("Promedio: "); lcd.print(scale.get_units(5), 1);
+//-------------------------------------------------------------    
+  peso=scale.get_units(10);                        //leo peso en A0
+  nump=map(peso, 0, 90, 0, 8);
+  
+Serial.println(peso);
+Serial.println(nump);
+indlleno.clear();
+//-------------------------------------------------------------luces   
+  for(int i=0;i<nump;i++){
+    if (i<=1) indlleno.setPixelColor(i, rojo);
+    if (i==2) indlleno.setPixelColor(i, amarmen); 
+    if ((i>=3)&&(i<=4)) indlleno.setPixelColor(i, amarillo);
+    if (i==5)  indlleno.setPixelColor(i, naranja); 
+    if (i>=6)  indlleno.setPixelColor(i, verde);
+    indlleno.show(); 
+  }
+//-------------------------------------------------------------
+
+// Serial.println("Seleccione opcion (1) Abrir o (2) Cerrar");
+//  serialEvent();
 //  opc=datoSerEve.toInt();
-//  Serial.println(opc);
-//  
-//  peso=balanza.get_units(10);                        //leo peso en A0
-//  nump=map(peso, 0, 90, 0, 8);
-//
-////-------------------------------------------------------------------luz llenado de tanque
-//  indlleno.clear();
-//  for(int i=0;i<nump;i++) {                   //  for(int i=0; (i<nump|| i<nump2); i++)
-//    if (i<=1) rojo=0;
-//    if ((i>=2)&&(i<=4)) rojo=128;
-//    if (i>=4) rojo=255;
-//    if (i<=4) verde=255;
-//    if (i==5) verde=128;
-//    if (i>=6) verde=0;
-//    if (i<=7) azul=0;
-//    indlleno.setPixelColor(i, rojo, verde,  azul);//rojo,verde,azul 0-255
-//    indlleno.show();
-//    delay(PAUSA);
-//  }
-////-------------------------------------------------------------------luz llenado de tanque
-//  
+//  //Serial.println(datoSerEve);
 //  switch (opc) {                                //seleccion de caso segun usuario
 //      case 1:
-////-------------------------------------------------------------------------AQUI ------>>>>>Abro puerta<<<-------
-////        SerialBT.println("Abriendo Contenedor" );
-//        Serial.println("Abriendo Contenedor" );
-//        for (pos=0; pos<=180; pos++) { // va de 0 a 180 grados
-//                                              // en pasos de 1 grado
-//          servo.write(pos);                   // servo va a posición pos
-//          servo2.write(pos);
-//          delay(15);                          // espera 15ms para ir a la posición
-//        }
-//              
+//        SerialBT.println("Cerrando Puerta" );
+////-------------------------------------------------------------------------AQUI ------>>>>>Cierro puerta<<<-------
+//
+//  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+//    // in steps of 1 degree
+//    servo.write(pos);              // tell servo to go to position in variable 'pos'
+//    delay(15);                       // waits 15ms for the servo to reach the position
+//  }
+//  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+//    servo.write(pos);              // tell servo to go to position in variable 'pos'
+//    delay(15);                       // waits 15ms for the servo to reach the position
+//  }
 ////-----------------------------------------------------------------------------          
+//            }
 //          opc=0;                //limpiar el dato
 //          datoSerEve="";          
 //          findatoSerEve= false;
-////          SerialBT.println("Contenedor Abierto");
-//          Serial.println("Contenedor Abierto");
+//          SerialBT.println("Fin de medición.");
 //          break;
-//      case 2:                             
-////------------------------------------------------------------------AQUI ------>>>>>Cierro puerta<<<-------
-////        SerialBT.println("Cerrando Contenedor");
-//        Serial.println("Cerrando Contenedor");
-//        for (pos=180; pos>=0; pos--) { // va de 180 a 0 grados
-//                                              // en pasos de 1 grado
-//          servo.write(pos);                   // servo va a posición pos
-//          servo2.write(pos);
-//          delay(15);                          // espera 15ms para ir a la posición
-//        }
-//            
-////-----------------------------------------------------------------------------
-//        opc=0;                  //limpiar el dato
-//        datoSerEve="";          
-//        findatoSerEve= false;
-////       SerialBT.println("Contenedor Cerrado");
-//        Serial.println("Contenedor Cerrado");
-//        break;
-//      default:
-////        SerialBT.println("Seleccion no valida");
-//        Serial.println("Seleccion no valida");
+//      case 2:                             //AQUI ------>>>>>Abro puerta<<<-------
+//        SerialBT.print("Seleccion vacia");
 //        delay(2000);
 //        opc=0;                  //limpiar el dato
 //        datoSerEve="";          
 //        findatoSerEve= false;
 //        break;
-//  }
-//}
+//      default:
+//        SerialBT.print("Seleccion no valida");
+//        delay(2000);
+//        opc=0;                  //limpiar el dato
+//        datoSerEve="";          
+//        findatoSerEve= false;
+//        break;
 
-//--------------------------------------------------->>Esperar datos de ususario---------------------------
+
+} //end voidloop******************************************************************
+
+
+////--------------------------------------------------->>Esperar datos de ususario---------------------------
 //void serialEvent() {                        // Funcion para esperar datos entrados por usuario
-//while (SerialBT.available()) {            //Espera por el buffer de datos
-//  char inChar = (char)SerialBT.read();    //Almacena dato entrante (serial normal)
+//  while (SerialBT.available()) {              //Espera por el buffer de datos
+//    char inChar = (char)SerialBT.read();    //Almacena dato entrante (serial normal)
 //    datoSerEve=inChar;                         //Almacena el dato local en variable global
 //    if (inChar == '\n') {                   //Si el dato que viene es nueva linea lo pone en variable para el loop
 //      findatoSerEve= true;
 //    }
 //  }
 //}
-//--------------------------------------------------->>Esperar datos de ususario---------------------------
-
-//********************************************************************************************************
-//#include <HX711.h>
-//#include <LiquidCrystal.h>
-//LiquidCrystal lcd(12,11,5,4,3,2);
-//void setup()
-//{
-//    lcd.begin(16, 2);
-//    lcd.clear();
-//    lcd.print("DispenM");
-//    lcd.setCursor(0,1); 
-//    lcd.print ("V 1.0");
-//}
-//void loop(){
-//  // set the cursor to column 0, line 1
-//  // (note: line 1 is the second row, since counting begins with 0):
-//  lcd.setCursor(6,1);
-//  // print the number of seconds since reset:
-//  lcd.print(millis() / 1000);
-//}
-//***************************************************************************************************************
-
-#include "HX711.h"
-HX711 scale;
-
-#include <Adafruit_NeoPixel.h>
-
-#ifdef __AVR__
-  #include <avr/power.h>
-#endif
-#define PIN      13                              //Pin control led celular 270gr 0.27kg
-#define NUMPIXEL 8                              //Pixeles de la tira
-
-Adafruit_NeoPixel indlleno(NUMPIXEL, PIN, NEO_GRBW + NEO_KHZ800);
-#define DELAYVAL 500                                  
-
-const int DT = A0;                            // variable modulo celda
-const int SCK1 = A1;
-int peso=0;                                  // variable de peso
-//Variables barra de luz-----------------------------------------------------------
-byte nump=0;                                 //barra de luz
-byte rojo=0;
-byte verde=0;
-byte azul=0;
-const byte PAUSA=0;
-//---------------------------------------------------------------------------------
-
-void setup() {
-  Serial.begin(115200);
-  Serial.println("HX711 Demo");
-  Serial.println("Initializing the scale");
-  scale.begin(DT, SCK1);
-
-  scale.read();
-  scale.read_average(20);   // print the average of 20 readings from the ADC
-  scale.get_value(5);   // print the average of 5 readings from the ADC minus the tare weight (not set yet)
-  scale.get_units(5);  // print the average of 5 readings from the ADC minus tare weight (not set) divided
-            // by the SCALE parameter (not set yet)
-
-  scale.set_scale(2649.718382);     // 2280.fthis value is obtained by calibrating the scale with known weights; see the README for details
-  scale.tare();               // reset the scale to 0
-                              //Despues de la calibracion
-                              
-  scale.read();                 // print a raw reading from the ADC
-  scale.read_average(10);       // print the average of 10 readings from the ADC
-  scale.get_value(5);   // print the average of 5 readings from the ADC minus the tare weight, set with tare()
-  scale.get_units(5);        // print the average of 5 readings from the ADC minus tare weight, divided
-                              // by the SCALE parameter set with set_scale
-  for (int i=0;i<=10;i++)
-  {Serial.print (". ");
-  delay(200);}
-
-  indlleno.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  indlleno.show();
-  indlleno.setBrightness(10); 
-}
-
-void loop() {
-  Serial.print("Lectura:\t");
-  Serial.print(scale.get_units(), 1);
-  Serial.print("\t| Promedio:\t");
-  Serial.println(scale.get_units(10), 1);
-
-  peso=scale.get_units(10);                        //leo peso en A0
-  
-  nump=map(peso, 0, 90, 0, 8);
-
-  Serial.println(peso);
-  Serial.println(nump);
-//-------------------------------------------------------------luces   
-  indlleno.clear();
-  for(int i=0;i<nump;i++) {                   //  for(int i=0; (i<nump|| i<nump2); i++)
-    if (i<=1) rojo=0;
-    if ((i>=2)&&(i<=4)) rojo=128;
-    if (i>=4) rojo=255;
-    if (i<=4) verde=255;
-    if (i==5) verde=128;
-    if (i>=6) verde=0;
-    if (i<=7) azul=0;
-    indlleno.setPixelColor(i, rojo, verde,  azul);//rojo,verde,azul 0-255
-    indlleno.show();
-    delay(PAUSA);
-  }
-//-------------------------------------------------------------
-//  scale.power_down();              // put the ADC in sleep mode
-//  delay(500);
-//  scale.power_up();
-}
+////--------------------------------------------------->>Esperar datos de ususario---------------------------

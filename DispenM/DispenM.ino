@@ -61,15 +61,15 @@ void loop() {
 
   Serial.print("Lectura:\t");
   Serial.print(scale.get_units(), 1);
-  Serial.print("\t| Promedio:\t");
-  Serial.println(scale.get_units(5), 1);
+//  Serial.print("\t| Promedio:\t");
+//  Serial.println(scale.get_units(5), 1);
 //-------------------------------------------------------------Visualizar valores 
   lcd.setCursor(0,0);  
   lcd.write("Lectura: "); lcd.print(scale.get_units(), 1);
-  lcd.setCursor(0,1);
-  lcd.write("Promedio: "); lcd.print(scale.get_units(5), 1);
+//  lcd.setCursor(0,1);
+//  lcd.write("Promedio: "); lcd.print(scale.get_units(5), 1);
 //-------------------------------------------------------------    
-  peso=scale.get_units(10);                        //leo peso en A0
+  peso=scale.get_units(5);                        //leo peso en A0
   nump=map(peso, 0, 90, 0, 8);
   
 Serial.println(peso);

@@ -1,14 +1,31 @@
+#include "BluetoothSerial.h" 
 #include "HX711.h"
 HX711 scale;
 #include <LiquidCrystal.h>
 #include <Adafruit_NeoPixel.h>
-#include <avr/power.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
 
 #define PIN       13
 #define NUMPIXEL  8
 Adafruit_NeoPixel indlleno = Adafruit_NeoPixel(NUMPIXEL, PIN, NEO_GRB + NEO_KHZ800);
 
 LiquidCrystal lcd(12,11,5,4,3,2);
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+BluetoothSerial SerialBT;
+
+//#include <SoftwareSerial.h>   //Software Serial Port BLUArdu
+//#define RxD 6
+//#define TxD 7
+// 
+//#define DEBUG_ENABLED  1
+// 
+//SoftwareSerial blueToothSerial(RxD,TxD);
 
 const int DT = A0;                            // variable modulo celda
 const int SCK1 = A1;
@@ -35,6 +52,14 @@ void setup() {
   scale.set_scale(2649.718382);     // 2280.fthis value is obtained by calibrating the scale with known weights; see the README for details
   scale.tare();               // reset the scale to 0
                               //Despues de la calibracion
+                              
+  SerialBT.begin(115200);                   // inicio bluetooth
+  SerialBT.begin("DispenM V 1.0");          // Nombre dispositivo
+  SerialBT.println("Iniciando dispositivo");
+
+//    pinMode(RxD, INPUT);
+//    pinMode(TxD, OUTPUT);
+//    setupBlueToothConnection(); //BLUArdu
 
     lcd.begin(16, 2);
     lcd.clear();
@@ -44,11 +69,12 @@ void setup() {
     lcd.write("Iniciando dispositivo");
     delay(200);
     for (int i=0;i<=10;i++)
-      {lcd.write(". ");
+      {lcd.write(". "); SerialBT.println(". ");
       lcd.autoscroll();
       delay(500);}
     lcd.noAutoscroll();
     lcd.clear();
+    
 }
 
 void loop() {
@@ -59,8 +85,8 @@ void loop() {
   uint32_t amarmen = indlleno.Color(150,75, 0);
   uint32_t verde = indlleno.Color(0,150,0);
 
-  Serial.print("Lectura:\t");
-  Serial.print(scale.get_units(), 1);
+  Serial.print("Lectura:\t"); SerialBT.println("Lectura:\t");
+  Serial.println(scale.get_units(), 1); SerialBT.println(scale.get_units(), 1);
 //  Serial.print("\t| Promedio:\t");
 //  Serial.println(scale.get_units(5), 1);
 //-------------------------------------------------------------Visualizar valores 
@@ -72,8 +98,12 @@ void loop() {
   peso=scale.get_units(5);                        //leo peso en A0
   nump=map(peso, 0, 90, 0, 8);
   
-Serial.println(peso);
-Serial.println(nump);
+Serial.println(peso); SerialBT.println(peso);
+Serial.println(nump); SerialBT.println(nump);
+//blueToothSerial.print("Lectura:"); blueToothSerial.print("\t");                 //BLUArdu
+//blueToothSerial.print(scale.get_units(), 1); blueToothSerial.print("\n");
+//blueToothSerial.print(peso); blueToothSerial.print("\n");
+//blueToothSerial.print(nump); blueToothSerial.print("\n");
 indlleno.clear();
 //-------------------------------------------------------------luces   
   for(int i=0;i<nump;i++){
@@ -126,8 +156,34 @@ indlleno.clear();
 //        findatoSerEve= false;
 //        break;
 
+//  char recvChar;        //BLUArdu
+////  while(1){
+//    if(blueToothSerial.available()){//Revisa si hay datos desde un Bleshield romto
+//      recvChar = blueToothSerial.read();
+//      Serial.print(recvChar);
+//    }
+//    if(Serial.available()){//Revisa si hay datos enviados desde serial (se puede agregar otras apps)
+//      recvChar  = Serial.read();
+//      blueToothSerial.print(recvChar);
+//    }
+////  }
 
 } //end voidloop******************************************************************
+
+
+//void setupBlueToothConnection()     //BLUArdu
+//{
+//  blueToothSerial.begin(38400); //Set BluetoothBee BaudRate to default baud rate 38400
+//  blueToothSerial.print("\r\n+STWMOD=0\r\n"); //Trabaja modo esclavo
+//  blueToothSerial.print("\r\n+STNA=DispenMV1\r\n"); //Nombre del dispositivo DispenM V1
+//  blueToothSerial.print("\r\n+STOAUT=1\r\n"); // Permite conexiones
+//  blueToothSerial.print("\r\n+STAUTO=0\r\n"); // Auto-connection should be forbidden here
+//  delay(2000); // This delay is required.
+//  blueToothSerial.print("\r\n+INQ=1\r\n"); //make the slave bluetooth inquirable 
+//  Serial.println("The slave bluetooth is inquirable!");
+//  delay(2000); // This delay is required.
+//  blueToothSerial.flush();
+//}
 
 
 ////--------------------------------------------------->>Esperar datos de ususario---------------------------

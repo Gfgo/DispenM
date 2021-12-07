@@ -1,4 +1,4 @@
-#include "BluetoothSerial.h" 
+#include <SoftwareSerial.h>
 #include "HX711.h"
 HX711 scale;
 #include <LiquidCrystal.h>
@@ -10,73 +10,72 @@ HX711 scale;
 #define PIN       13
 #define NUMPIXEL  8
 Adafruit_NeoPixel indlleno = Adafruit_NeoPixel(NUMPIXEL, PIN, NEO_GRB + NEO_KHZ800);
-
 LiquidCrystal lcd(12,11,5,4,3,2);
 
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-#endif
-
-BluetoothSerial SerialBT;
-
-//#include <SoftwareSerial.h>   //Software Serial Port BLUArdu
-//#define RxD 6
-//#define TxD 7
-// 
-//#define DEBUG_ENABLED  1
-// 
-//SoftwareSerial blueToothSerial(RxD,TxD);
-
-const int DT = A0;                            // variable modulo celda
-const int SCK1 = A1;
+//-----------------------------------------------------------------------BLE
+const int tx=7,rx=6;
+SoftwareSerial blut(tx,rx);   //Crea conexion al bluetooth - PIN 2 a TX y PIN 3 a RX
+char NOMBRE[15]  = "DispenM V1.0"; // Nombre de 20 caracteres maximo
+char BPS         = '4';     // 1=1200 , 2=2400, 3=4800, 4=9600, 5=19200, 6=38400, 7=57600, 8=115200
+//char PASS[5]    = "1234";   // PIN O CLAVE de 4 caracteres numericos
+//-----------------------------------------------------------------------Celda
+const int DT = A1;                            // variable modulo celda
+const int SCK1 = A0;
 int peso=0; 
 int nump=0;
+//-----------------------------------------------------------------------
+String dato = "";  
+bool findato = false;
+int a=0; 
 
 void setup() {
 
   indlleno.begin();
   indlleno.setBrightness(10);
   indlleno.show();
-  scale.begin(DT, SCK1);
-  Serial.begin(115200);
-  Serial.println("Iniciando dispositivo");
-  Serial.println("DispenM V 1.0");
-  scale.begin(DT, SCK1);
-
+  Serial.begin(9600);                         // inicio bluetooth
+  Serial.println("Iniciando dispositivo");    
+  Serial.println("DispenM V 1.0");            // Nombre dispositivo
+//-------------------------------------------------SetupCelda
+  scale.begin(DT, SCK1);                      
   scale.read();
-  scale.read_average(10);   // print the average of 20 readings from the ADC
-  scale.get_value(3);   // print the average of 5 readings from the ADC minus the tare weight (not set yet)
-  scale.get_units(3);  // print the average of 5 readings from the ADC minus tare weight (not set) divided
-            // by the SCALE parameter (not set yet)
-
-  scale.set_scale(2649.718382);     // 2280.fthis value is obtained by calibrating the scale with known weights; see the README for details
-  scale.tare();               // reset the scale to 0
-                              //Despues de la calibracion
-                              
-  SerialBT.begin(115200);                   // inicio bluetooth
-  SerialBT.begin("DispenM V 1.0");          // Nombre dispositivo
-  SerialBT.println("Iniciando dispositivo");
-
-//    pinMode(RxD, INPUT);
-//    pinMode(TxD, OUTPUT);
-//    setupBlueToothConnection(); //BLUArdu
-
-    lcd.begin(16, 2);
+  scale.read_average(10);   // Promedio de 10 lineas
+  scale.get_value(3);   //Promedio de 3 lecturas
+  scale.get_units(3);  //Promedio de 3 lecturas menos tara
+  scale.set_scale(2649.718382);   // Valor de calibración
+  scale.tare();                   //Tara a 0
+                                 //Despues de la calibracion
+//-------------------------------------------------SetupCelda
+//---------------------------------------------------Setup BLe
+    blut.begin(9600); // inicialmente la comunicacion serial a 9600 Baudios (velocidad de fabrica)
+    blut.print("AT");  // Inicializa comando AT
+    delay(1000);
+    blut.print("AT+NAME"); // Configura el nuevo nombre 
+    blut.print(NOMBRE);
+    delay(1000);                  // espera 1 segundo
+    blut.print("AT+BAUD");  // Configura la nueva velocidad 
+    blut.print(BPS); 
+    delay(1000);
+ 
+//--------------------------------------------------
+ lcd.begin(16, 2);
     lcd.clear();
-    lcd.write("DispenM V 1.0");
+    lcd.write("DispenM V 1.0"); blut.println("DispenM V 1.0");
     delay(500);
     lcd.setCursor(0,1); 
-    lcd.write("Iniciando dispositivo");
+    lcd.write("Iniciando dispositivo"); blut.println("Iniciando dispositivo");
     delay(200);
     for (int i=0;i<=10;i++)
-      {lcd.write(". "); SerialBT.println(". ");
+      {lcd.write(". "); blut.println(". ");
       lcd.autoscroll();
       delay(500);}
     lcd.noAutoscroll();
     lcd.clear();
     
-}
+//    pinMode(DT,INPUT);                            // variable modulo celda
+//    pinMode(SCK1,INPUT);
 
+}
 void loop() {
 
   uint32_t rojo = indlleno.Color(150,0,0);
@@ -85,25 +84,17 @@ void loop() {
   uint32_t amarmen = indlleno.Color(150,75, 0);
   uint32_t verde = indlleno.Color(0,150,0);
 
-  Serial.print("Lectura:\t"); SerialBT.println("Lectura:\t");
-  Serial.println(scale.get_units(), 1); SerialBT.println(scale.get_units(), 1);
-//  Serial.print("\t| Promedio:\t");
-//  Serial.println(scale.get_units(5), 1);
+  Serial.print("Lectura:\t");  blut.print("Lectura:\t");
+  Serial.println(scale.get_units(), 1);  blut.println(scale.get_units(), 1);
 //-------------------------------------------------------------Visualizar valores 
   lcd.setCursor(0,0);  
   lcd.write("Lectura: "); lcd.print(scale.get_units(), 1);
-//  lcd.setCursor(0,1);
-//  lcd.write("Promedio: "); lcd.print(scale.get_units(5), 1);
 //-------------------------------------------------------------    
-  peso=scale.get_units(5);                        //leo peso en A0
+  peso=scale.get_units();                        //leo peso en A0
   nump=map(peso, 0, 90, 0, 8);
   
-Serial.println(peso); SerialBT.println(peso);
-Serial.println(nump); SerialBT.println(nump);
-//blueToothSerial.print("Lectura:"); blueToothSerial.print("\t");                 //BLUArdu
-//blueToothSerial.print(scale.get_units(), 1); blueToothSerial.print("\n");
-//blueToothSerial.print(peso); blueToothSerial.print("\n");
-//blueToothSerial.print(nump); blueToothSerial.print("\n");
+Serial.println(peso); 
+Serial.println(nump); 
 indlleno.clear();
 //-------------------------------------------------------------luces   
   for(int i=0;i<nump;i++){
@@ -114,86 +105,5 @@ indlleno.clear();
     if (i>=6)  indlleno.setPixelColor(i, verde);
     indlleno.show(); 
   }
-//-------------------------------------------------------------
-
-// Serial.println("Seleccione opcion (1) Abrir o (2) Cerrar");
-//  serialEvent();
-//  opc=datoSerEve.toInt();
-//  //Serial.println(datoSerEve);
-//  switch (opc) {                                //seleccion de caso segun usuario
-//      case 1:
-//        SerialBT.println("Cerrando Puerta" );
-////-------------------------------------------------------------------------AQUI ------>>>>>Cierro puerta<<<-------
-//
-//  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-//    // in steps of 1 degree
-//    servo.write(pos);              // tell servo to go to position in variable 'pos'
-//    delay(15);                       // waits 15ms for the servo to reach the position
-//  }
-//  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-//    servo.write(pos);              // tell servo to go to position in variable 'pos'
-//    delay(15);                       // waits 15ms for the servo to reach the position
-//  }
-////-----------------------------------------------------------------------------          
-//            }
-//          opc=0;                //limpiar el dato
-//          datoSerEve="";          
-//          findatoSerEve= false;
-//          SerialBT.println("Fin de medición.");
-//          break;
-//      case 2:                             //AQUI ------>>>>>Abro puerta<<<-------
-//        SerialBT.print("Seleccion vacia");
-//        delay(2000);
-//        opc=0;                  //limpiar el dato
-//        datoSerEve="";          
-//        findatoSerEve= false;
-//        break;
-//      default:
-//        SerialBT.print("Seleccion no valida");
-//        delay(2000);
-//        opc=0;                  //limpiar el dato
-//        datoSerEve="";          
-//        findatoSerEve= false;
-//        break;
-
-//  char recvChar;        //BLUArdu
-////  while(1){
-//    if(blueToothSerial.available()){//Revisa si hay datos desde un Bleshield romto
-//      recvChar = blueToothSerial.read();
-//      Serial.print(recvChar);
-//    }
-//    if(Serial.available()){//Revisa si hay datos enviados desde serial (se puede agregar otras apps)
-//      recvChar  = Serial.read();
-//      blueToothSerial.print(recvChar);
-//    }
-////  }
 
 } //end voidloop******************************************************************
-
-
-//void setupBlueToothConnection()     //BLUArdu
-//{
-//  blueToothSerial.begin(38400); //Set BluetoothBee BaudRate to default baud rate 38400
-//  blueToothSerial.print("\r\n+STWMOD=0\r\n"); //Trabaja modo esclavo
-//  blueToothSerial.print("\r\n+STNA=DispenMV1\r\n"); //Nombre del dispositivo DispenM V1
-//  blueToothSerial.print("\r\n+STOAUT=1\r\n"); // Permite conexiones
-//  blueToothSerial.print("\r\n+STAUTO=0\r\n"); // Auto-connection should be forbidden here
-//  delay(2000); // This delay is required.
-//  blueToothSerial.print("\r\n+INQ=1\r\n"); //make the slave bluetooth inquirable 
-//  Serial.println("The slave bluetooth is inquirable!");
-//  delay(2000); // This delay is required.
-//  blueToothSerial.flush();
-//}
-
-
-////--------------------------------------------------->>Esperar datos de ususario---------------------------
-//void serialEvent() {                        // Funcion para esperar datos entrados por usuario
-//  while (SerialBT.available()) {              //Espera por el buffer de datos
-//    char inChar = (char)SerialBT.read();    //Almacena dato entrante (serial normal)
-//    datoSerEve=inChar;                         //Almacena el dato local en variable global
-//    if (inChar == '\n') {                   //Si el dato que viene es nueva linea lo pone en variable para el loop
-//      findatoSerEve= true;
-//    }
-//  }
-//}
-////--------------------------------------------------->>Esperar datos de ususario---------------------------

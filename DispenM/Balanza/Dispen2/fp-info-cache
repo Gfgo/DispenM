@@ -1,4 +1,4 @@
-19495221284643590
+19495224505299963
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -51008,13 +51008,6 @@ ESP32_mini
 0
 40
 40
-Esp32DfrRobot
-Esp32DFR0478
-FireBeetle ESP32
-Undefined or Miscellaneous
-0
-40
-40
 Ferrite_THT
 LairdTech_28C0236-0JW-10
 Ferrite, vertical, LairdTech 28C0236-0JW-10, https://assets.lairdtech.com/home/brandworld/files/28C0236-0JW-10.pdf, JW Miller core https://www.bourns.com/products/magnetic-products/j.w.-miller-through-hole-ferrite-beads-emi-filters
@@ -56550,8 +56543,8 @@ Lora32U4
 
 
 0
-31
-31
+32
+32
 MODULOS
 ModuloHX711
 Through hole straight pin header, 1x06, 2.54mm pitch, single row
@@ -56580,6 +56573,13 @@ THT Terminal Block Phoenix MKDS-1,5-3 pitch 5mm size 15x9.8mm^2 drill 1.3mm pad 
 0
 6
 6
+MicroSD
+MODULE_MicroSD
+
+
+0
+8
+8
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet

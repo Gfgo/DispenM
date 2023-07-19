@@ -179,11 +179,11 @@
 #include <Servo.h> 
 
 
-int cont=0;
-byte h1[3]={7,12,16};
-byte h2[4]={5,9,13,17};
-byte h3[5]={5,8,12,16,19};
-byte h=0;
+//int cont=0;
+//byte h1[3]={7,12,16};
+//byte h2[4]={5,9,13,17};
+//byte h3[5]={5,8,12,16,19};
+//byte h=0;
 
 
 //Ucglib_SSD1351_18x128x128_SWSPI ucg(/*sclk=*/ 15, /*data=*/ 16, /*cd=*/ 22, /*cs=*/ 23, /*reset=*/ 2); //lento
@@ -208,11 +208,11 @@ void setup(void){
   ucg.begin(UCG_FONT_MODE_TRANSPARENT);
   mervo.attach(10);
 //***************************opcion  
-  while(h!=0){
-      ucg.print("Que horario desea H1,H2 o H3 ");
-      ucg.print(fecha.hour());
-      ucg.print(fecha.hour());
-      }
+//  while(h!=0){
+//      ucg.print("Que horario desea H1,H2 o H3 ");
+//      ucg.print(fecha.hour());
+//      ucg.print(fecha.hour());
+//      }
 //************************ opcion
   ucg.clearScreen();
 }
@@ -306,11 +306,11 @@ void loop(void){
 } //fin programa con pantalla
 
 /*
-falta seleccionar entre horarios de comida
 falta abrir motor cuando sea la hora adecuada (comparar entre 
       hora actual y la hora objetivo cuando sea igual accionar)
 Llenar plato hasta sensor diga que esta lleno
 falta que la interrupcion me interrumpa y mande a inicio
+(falta seleccionar entre horarios de comida)-no por ahora
 */
 
 #include <Wire.h>    

@@ -180,11 +180,11 @@
 
 
 //int cont=0;
-//byte h1[3]={7,12,16};
+int hall=18;                  //GPIO18 sensor hall
+byte h=0;
+byte h1[]={10,30,50};
 //byte h2[4]={5,9,13,17};
 //byte h3[5]={5,8,12,16,19};
-//byte h=0;
-
 
 //Ucglib_SSD1351_18x128x128_SWSPI ucg(/*sclk=*/ 15, /*data=*/ 16, /*cd=*/ 22, /*cs=*/ 23, /*reset=*/ 2); //lento
 Ucglib_SSD1351_18x128x128_HWSPI ucg(/*cd=*/ 22, /*cs=*/ 23, /*reset=2*/ 5);                             //rapido
@@ -204,40 +204,35 @@ void setup(void){
       while (1);  
   }
   rtc.adjust(DateTime(__DATE__, __TIME__));  //Establecer fecha y hora comentar y volver a subir esta linea para normal
-  //delay(500);
   ucg.begin(UCG_FONT_MODE_TRANSPARENT);
   mervo.attach(10);
-//***************************opcion  
-//  while(h!=0){
-//      ucg.print("Que horario desea H1,H2 o H3 ");
-//      ucg.print(fecha.hour());
-//      ucg.print(fecha.hour());
-//      }
-//************************ opcion
+  pinMode (hall, INPUT);
   ucg.clearScreen();
 }
 
 void loop(void){
   ucg.setFont(ucg_font_ncenR12_tr);
-  DateTime fecha = rtc.now();   
-//  ucg.clearScreen();
-//  ucg_int_t mx, my;
-//  ucg_int_t x, xx;
-//  mx = ucg.getWidth();
-//  my = ucg.getHeight();
+  DateTime fecha = rtc.now();
+
+  ucg.setColor(128, 128, 128);
+  ucg.drawBox(10,4, 40, 13); // Cuadro para refrescar pantalla
   ucg.setColor(255, 255, 255);
   ucg.setPrintPos(10,16);
-  ucg.print(fecha.hour());    Serial.print(fecha.hour());        
-  ucg.print(":");             Serial.print(":");    
-  ucg.print(fecha.minute());  Serial.print(fecha.minute()); 
-  
+  ucg.print(fecha.hour());    //Serial.print(fecha.hour());        
+  ucg.print(":");             //Serial.print(":");    
+  ucg.print(fecha.minute());  //Serial.print(fecha.minute()); 
+
+//--------------------------------------Hall
+  uint16_t value = analogRead (hall);
+  uint16_t range = get_gp2d12 (value);
+  Serial.println (value);
+  Serial.print (range);
+  Serial.println (" mm");
+//-------------------------------------Hall  
   ucg.setColor(255, 255, 255);
   ucg.setPrintPos(2, 54);
   ucg.print("Tanque ");
-//  ucg.setColor(255, 255, 255);
-//  ucg.setPrintPos(2,74);
-//  ucg.print(mx);
-//
+
   ucg.setColor(0, 0, 255, 128);
   ucg.setColor(1, 0, 255, 128);
   ucg.setColor(2, 255, 0, 60);
@@ -254,186 +249,94 @@ void loop(void){
   ucg.setColor(255, 255, 255);
   ucg.setPrintPos(2,100);
   ucg.print("Disponible: ");
-
+  ucg.setColor(128, 128, 128);
+  ucg.drawBox(98, 88, 28, 14);// Cuadro para refrescar pantalla # disponible
+ 
+  ucg.setColor(255, 255, 255);
+  ucg.setPrintPos(100,100);
+  ucg.print(range);
+  ucg.setColor(128, 128, 128);
+  ucg.drawBox(50,113, 53, 16);// Cuadro para refrescar pantalla lleno
+  
+  if (range<=30){
+  ucg.setColor(255, 12, 12);
+  ucg.setPrintPos(50,125);
+  ucg.print("LLeno "); }
+  
 //----------------------------------------------------------------------Descarga de bateria  
   for (int cont=0;cont<=10;cont++)  {
-    int y = map(cont, 0, 10, 2, 28); //peso y nivel
+    int ybat = map(cont, 0, 10, 2, 28); //peso y nivel
     ucg.setColor(0, 0, 0);//negro
     ucg.drawBox(91, 1, y, 18);
     //delay (200);
   }
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------Descarga de tanque  
-  for (int cont=0;cont<=10;cont++)  {
-    int y = map(cont, 1, 10, 3, 28); //peso y nivel
+  //for (int cont=0;cont<=10;cont++)  {                   //38,30 ancho *alto nivel
+   // int y = map(cont, 1, 10, 3, 28); //peso y nivel     //<97 bajo /98 a 180 medio/ 181> alto
+    int ytank = map(range, 28, 350, 3, 28);
     ucg.setColor(0, 0, 0);//negro
     ucg.drawBox(91, 41, 36, y);
     //delay (200);
-  }
+ // }
 //----------------------------------------------------------------------
-  //delay(700); 
-  ucg.clearScreen();
+  delay(300); 
+//  ucg.clearScreen();
 //---------------------------------------------------------------------servo
+ Serial.print("fecha " );
  Serial.print(fecha.hour());      // funcion que obtiene la hora de la fecha completa
  Serial.print(":");       // caracter dos puntos como separador
  Serial.print(fecha.minute());      // funcion que obtiene los minutos de la fecha completa
  Serial.print(":");       // caracter dos puntos como separador
  Serial.println(fecha.second());    // funcion que obtiene los segundos de la fecha completa
- 
- Serial.print("fecha 2 " );
- Serial.print(fecha2.hour());      // funcion que obtiene la hora de la fecha completa
- Serial.print(":");       // caracter dos puntos como separador
- Serial.print(fecha2.minute());      // funcion que obtiene los minutos de la fecha completa
- Serial.print(":");       // caracter dos puntos como separador
- Serial.println(fecha2.second());    // funcion que obtiene los segundos de la fecha completa
 
- cont++;
- if (cont==1)
-    { fecha2=fecha+10;}
- 
-  if(fecha==fecha2){
-    for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados
-                                                // en pasos de 1 grado
+
+//  //h=fecha.second();
+//for (int i=0;i<=3;i++){
+//  if((fecha.second())==h1[i]){
+//    for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados
+//                                                // en pasos de 1 grado
+//        mervo.write(pos);                   // servo va a posición pos
+//        //Serial.println("entro");
+//        //cont=0;
+//        delay(15);                          // espera 15ms para ir a la posición
+//     }
+//  }
+//}
+
+  switch (fecha.second()){
+    case 10:
+      for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
         mervo.write(pos);                   // servo va a posición pos
-        Serial.println(pos);
-        cont=0;
         delay(15);                          // espera 15ms para ir a la posición
-     }
-  }
+     } break;
+    case 30:
+      for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+        mervo.write(pos);                   // servo va a posición pos
+        delay(15);                          // espera 15ms para ir a la posición
+     } break;
+    case 50:
+      for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+        mervo.write(pos);                   // servo va a posición pos
+        delay(15);                          // espera 15ms para ir a la posición
+     } break;
+    }
  
- delay(1000); 
+// delay(1000); //espera de actualizacion y accin
 //---------------------------------------------------------------------  
 } //fin programa con pantalla
 
+//--------------------------------------------hall
+uint16_t get_gp2d12 (uint16_t value) {
+    if (value < 10) value = 10;
+    return ((67870.0 / (value - 3.0)) - 40.0);}
+//--------------------------------------------hall
+
+
 /*
 falta abrir motor cuando sea la hora adecuada (comparar entre 
-      hora actual y la hora objetivo cuando sea igual accionar)
-Llenar plato hasta sensor diga que esta lleno
+      hora actual y la hora objetivo cuando sea igual accionar) ---- ya pero cuadrado con segundos
+Llenar plato hasta sensor diga que esta lleno                   ---- ya pero alerta sale abajo
 falta que la interrupcion me interrumpa y mande a inicio
 (falta seleccionar entre horarios de comida)-no por ahora
 */
-
-#include <Wire.h>    
-#include <RTClib.h>
-#include <Servo.h> 
-
-Servo mervo;
-RTC_DS3231 rtc;
-int pinopc=1; //opc blanco
-int pinsn=9;  //sn rojo(interrupcion)
-
-const long inter = 8000;
-const long inter2 = 4000;
-unsigned long prev = 0;
-byte sn=0;
-byte opc=2;
-//unsigned long actual = millis();
-//DateTime fecha = rtc.now();  
-
-void setup () {
- Serial.begin(9600);    // inicializa comunicacion serie a 9600 bps
- pinMode(pinopc, INPUT);
- pinMode(pinsn, INPUT);
- mervo.attach(10);
-
- if (! rtc.begin()) {       // si falla la inicializacion del modulo
- Serial.println("Modulo RTC no encontrado !");  // muestra mensaje de error
- while (1);         // bucle infinito que detiene ejecucion del programa
- }
- //rtc.adjust(DateTime(__DATE__, __TIME__));   //Establecer fecha y hora comentar y volver a subir esta linea para normal
- attachInterrupt(digitalPinToInterrupt(pinsn), interrupcion1, FALLING);
-}           
-
-void loop () {
- unsigned long actual = millis();
- DateTime fecha = rtc.now();  
- 
-    
-
-  Serial.print("Cuantas veces al día desea alimentar? 3, 4, 5 ");
-  if (digitalRead(pinopc)) {
-    rebote(pinopc);
-    opc++;
-    if(opc==6) {opc=3;}
-    Serial.print("opc "); Serial.println(opc); }//*********************** ingreso de opcion
-
- Serial.print(fecha.hour());      
- Serial.print(":");       
- Serial.print(fecha.minute());
- Serial.print(":");     
- Serial.println(fecha.second()); 
- mervo.write(0);
- sn=0;
-
- switch (opc){
-  case 3:
-    while (sn!=1){
-      Serial.print("opc "); Serial.println(opc);
-      alimento (10);if (sn==1) {break; }
-      alimento (30);if (sn==1) {break; }
-      alimento (50);if (sn==1) {break; }
-      Serial.println("Para cambiar de horario presione cancelar ");
-      //if (sn==1) {break; }
-      //if ((actual - prev) > inter) {
-     //   if (digitalRead(pinsn)) {
-     //        rebote(pinsn);
-    //        sn++;
-     //       Serial.print("sn "); Serial.println(sn);}
-     // } prev = actual;
-      
-      
-           
-    }
-  break;
-  case 4:
-    while (sn!=1){
-      Serial.print("opc "); Serial.println(opc);
-      alimento (5);
-      alimento (9);
-      alimento (13);
-      alimento (17);
-      Serial.println(" Desea cambiar de horario? Si=1 ");
-      sn=Serial.read();
-      if (actual - prev >= inter) {
-          prev = actual;}
-    }
-  break;
-  case 5:
-    while (sn!=1){
-      Serial.print("opc "); Serial.println(opc);
-      alimento (5);
-      alimento (8);
-      alimento (12);
-      alimento (16);
-      alimento (19);
-      Serial.println(" Desea cambiar de horario? Si=1 ");
-      sn=Serial.read();
-     if (actual - prev >= inter) {
-          prev = actual;}
-    }
-  break;
- }
-   
- delay(1000);
-}
-//FUNCIONES
-void alimento (int t1){
-    Serial.println("Igua1 ");
-    //if(fecha.second()==t1);{
-      mervo.write(90);
-      delay(500);
-      mervo.write(180);
-      delay(500);
-   // }
-    
-}
-void rebote (byte boton){
-  delay(50);
-  while(digitalRead(boton));
-  delay(50);
-}
-
-void interrupcion1(){
-  sn=1;
-  opc=2;
-}

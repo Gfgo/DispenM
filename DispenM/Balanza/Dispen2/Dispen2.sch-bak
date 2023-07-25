@@ -16,12 +16,12 @@ $EndDescr
 $Comp
 L Motor:Motor_Servo M1
 U 1 1 6484B47B
-P 7000 2600
-F 0 "M1" H 6900 2600 50  0000 L CNN
-F 1 "Motor_Servo" H 6850 2500 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 7000 2410 50  0001 C CNN
-F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 7000 2410 50  0001 C CNN
-	1    7000 2600
+P 6650 2450
+F 0 "M1" H 6550 2450 50  0000 L CNN
+F 1 "Motor_Servo" H 6500 2350 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 6650 2260 50  0001 C CNN
+F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 6650 2260 50  0001 C CNN
+	1    6650 2450
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -115,12 +115,12 @@ $EndComp
 $Comp
 L power:+5V #PWR0104
 U 1 1 64856200
-P 6700 2600
-F 0 "#PWR0104" H 6700 2450 50  0001 C CNN
-F 1 "+5V" V 6715 2728 50  0000 L CNN
-F 2 "" H 6700 2600 50  0001 C CNN
-F 3 "" H 6700 2600 50  0001 C CNN
-	1    6700 2600
+P 6350 2450
+F 0 "#PWR0104" H 6350 2300 50  0001 C CNN
+F 1 "+5V" V 6365 2578 50  0000 L CNN
+F 2 "" H 6350 2450 50  0001 C CNN
+F 3 "" H 6350 2450 50  0001 C CNN
+	1    6350 2450
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -206,12 +206,12 @@ $EndComp
 $Comp
 L power:GND #PWR0112
 U 1 1 6485CF38
-P 6700 2700
-F 0 "#PWR0112" H 6700 2450 50  0001 C CNN
-F 1 "GND" V 6705 2572 50  0000 R CNN
-F 2 "" H 6700 2700 50  0001 C CNN
-F 3 "" H 6700 2700 50  0001 C CNN
-	1    6700 2700
+P 6350 2550
+F 0 "#PWR0112" H 6350 2300 50  0001 C CNN
+F 1 "GND" V 6355 2422 50  0000 R CNN
+F 2 "" H 6350 2550 50  0001 C CNN
+F 3 "" H 6350 2550 50  0001 C CNN
+	1    6350 2550
 	0    1    1    0   
 $EndComp
 $Comp
@@ -241,7 +241,7 @@ Text GLabel 6100 1300 0    50   Input ~ 0
 SCL
 Text GLabel 6100 1400 0    50   Input ~ 0
 SDA
-Text GLabel 6700 2500 0    50   Input ~ 0
+Text GLabel 6350 2350 0    50   Input ~ 0
 SERVO
 $Comp
 L power:GND #PWR0114

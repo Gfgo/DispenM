@@ -289,28 +289,6 @@ NoConn ~ 4600 3750
 NoConn ~ 4600 3850
 NoConn ~ 6500 1100
 $Comp
-L Device:Battery BT1
-U 1 1 64B82FDD
-P 3200 1450
-F 0 "BT1" H 3308 1496 50  0000 L CNN
-F 1 "9V" H 3250 1300 50  0000 L CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal" V 3200 1510 50  0001 C CNN
-F 3 "~" V 3200 1510 50  0001 C CNN
-	1    3200 1450
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R R1
-U 1 1 64B83CB1
-P 3550 1300
-F 0 "R1" H 3620 1346 50  0000 L CNN
-F 1 "100" H 3620 1255 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 3480 1300 50  0001 C CNN
-F 3 "~" H 3550 1300 50  0001 C CNN
-	1    3550 1300
-	1    0    0    -1  
-$EndComp
-$Comp
 L Diode:1N4001 D1
 U 1 1 64B84623
 P 3850 3500
@@ -335,84 +313,6 @@ Wire Wire Line
 Wire Wire Line
 	3750 3650 3850 3650
 Connection ~ 3850 3650
-$Comp
-L Device:R R2
-U 1 1 64B8C058
-P 3550 1700
-F 0 "R2" H 3620 1746 50  0000 L CNN
-F 1 "180" H 3620 1655 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 3480 1700 50  0001 C CNN
-F 3 "~" H 3550 1700 50  0001 C CNN
-	1    3550 1700
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R R4
-U 1 1 64B8C9C1
-P 3900 2000
-F 0 "R4" H 3970 2046 50  0000 L CNN
-F 1 "220" H 3970 1955 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 3830 2000 50  0001 C CNN
-F 3 "~" H 3900 2000 50  0001 C CNN
-	1    3900 2000
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3200 1250 3200 1150
-Wire Wire Line
-	3200 1650 3200 1850
-Wire Wire Line
-	3200 1150 3550 1150
-Wire Wire Line
-	3200 1850 3550 1850
-Wire Wire Line
-	3550 1850 3550 2150
-Wire Wire Line
-	3550 2150 3900 2150
-Connection ~ 3550 1850
-Wire Wire Line
-	3550 1500 3550 1450
-Wire Wire Line
-	3550 1550 3550 1500
-Connection ~ 3550 1500
-$Comp
-L Device:R R3
-U 1 1 64B8C357
-P 3900 1650
-F 0 "R3" H 3970 1696 50  0000 L CNN
-F 1 "100" H 3970 1605 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 3830 1650 50  0001 C CNN
-F 3 "~" H 3900 1650 50  0001 C CNN
-	1    3900 1650
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	3550 1500 3900 1500
-Wire Wire Line
-	3900 1800 3900 1850
-$Comp
-L power:+5V #PWR0115
-U 1 1 64B93850
-P 3550 1500
-F 0 "#PWR0115" H 3550 1350 50  0001 C CNN
-F 1 "+5V" V 3550 1600 50  0000 L CNN
-F 2 "" H 3550 1500 50  0001 C CNN
-F 3 "" H 3550 1500 50  0001 C CNN
-	1    3550 1500
-	0    -1   -1   0   
-$EndComp
-$Comp
-L power:+3.3V #PWR0116
-U 1 1 64B93E40
-P 3900 1800
-F 0 "#PWR0116" H 3900 1650 50  0001 C CNN
-F 1 "+3.3V" V 3915 1928 50  0000 L CNN
-F 2 "" H 3900 1800 50  0001 C CNN
-F 3 "" H 3900 1800 50  0001 C CNN
-	1    3900 1800
-	0    1    1    0   
-$EndComp
-Connection ~ 3900 1800
 $Comp
 L power:+3.3V #PWR0117
 U 1 1 64B94797

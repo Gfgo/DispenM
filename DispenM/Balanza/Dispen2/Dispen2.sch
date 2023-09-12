@@ -351,4 +351,89 @@ F 3 "" H 5800 2950 50  0001 C CNN
 	1    5800 2950
 	0    1    1    0   
 $EndComp
+$Comp
+L Regulator_Linear:LM7805_TO220 U4
+U 1 1 651AE70B
+P 4350 1350
+F 0 "U4" H 4350 1592 50  0000 C CNN
+F 1 "LM7805_TO220" H 4350 1501 50  0000 C CNN
+F 2 "Package_TO_SOT_THT:TO-220-3_Vertical" H 4350 1575 50  0001 C CIN
+F 3 "https://www.onsemi.cn/PowerSolutions/document/MC7800-D.PDF" H 4350 1300 50  0001 C CNN
+	1    4350 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Regulator_Linear:LD1117S33TR_SOT223 U3
+U 1 1 651AF6C9
+P 3550 1350
+F 0 "U3" H 3550 1592 50  0000 C CNN
+F 1 "LD1117S33TR_SOT223" H 3550 1501 50  0000 C CNN
+F 2 "Package_TO_SOT_THT:TO-220-3_Vertical" H 3550 1550 50  0001 C CNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00000544.pdf" H 3650 1100 50  0001 C CNN
+	1    3550 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x02 J1
+U 1 1 651B1155
+P 5100 1350
+F 0 "J1" H 5180 1342 50  0000 L CNN
+F 1 "Conn_01x02" H 5180 1251 50  0000 L CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2_1x02_P5.00mm_Horizontal" H 5100 1350 50  0001 C CNN
+F 3 "~" H 5100 1350 50  0001 C CNN
+	1    5100 1350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4900 1350 4650 1350
+Wire Wire Line
+	4900 1450 4800 1450
+Wire Wire Line
+	4800 1450 4800 1650
+Wire Wire Line
+	4800 1650 4350 1650
+Wire Wire Line
+	3550 1650 3950 1650
+Connection ~ 4350 1650
+Wire Wire Line
+	3850 1350 3950 1350
+$Comp
+L power:+5V #PWR0115
+U 1 1 651B70A7
+P 3950 1350
+F 0 "#PWR0115" H 3950 1200 50  0001 C CNN
+F 1 "+5V" H 3965 1523 50  0000 C CNN
+F 2 "" H 3950 1350 50  0001 C CNN
+F 3 "" H 3950 1350 50  0001 C CNN
+	1    3950 1350
+	1    0    0    -1  
+$EndComp
+Connection ~ 3950 1350
+Wire Wire Line
+	3950 1350 4050 1350
+$Comp
+L power:GND #PWR0116
+U 1 1 651B75A5
+P 3950 1650
+F 0 "#PWR0116" H 3950 1400 50  0001 C CNN
+F 1 "GND" H 3955 1477 50  0000 C CNN
+F 2 "" H 3950 1650 50  0001 C CNN
+F 3 "" H 3950 1650 50  0001 C CNN
+	1    3950 1650
+	1    0    0    -1  
+$EndComp
+Connection ~ 3950 1650
+Wire Wire Line
+	3950 1650 4350 1650
+$Comp
+L power:+3.3V #PWR0119
+U 1 1 651B78BF
+P 3250 1350
+F 0 "#PWR0119" H 3250 1200 50  0001 C CNN
+F 1 "+3.3V" V 3265 1478 50  0000 L CNN
+F 2 "" H 3250 1350 50  0001 C CNN
+F 3 "" H 3250 1350 50  0001 C CNN
+	1    3250 1350
+	0    -1   -1   0   
+$EndComp
 $EndSCHEMATC

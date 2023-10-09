@@ -180,7 +180,7 @@
 
 
 //int cont=0;
-int hall=18;                  //GPIO18 sensor hall
+byte hall=18;                  //GPIO18 sensor hall
 byte h=0;
 byte h1[]={10,30,50};
 //byte h2[4]={5,9,13,17};
@@ -264,21 +264,22 @@ void loop(void){
   ucg.print("LLeno "); }
   
 //----------------------------------------------------------------------Descarga de bateria  
-  for (int cont=0;cont<=10;cont++)  {
-    int ybat = map(cont, 0, 10, 2, 28); //peso y nivel
+  for (byte cont=0;cont<=10;cont++)  {
+    byte y;
+    byte bat = map(cont, 0, 10, 2, 28); //peso y nivel
     ucg.setColor(0, 0, 0);//negro
     ucg.drawBox(91, 1, y, 18);
     //delay (200);
   }
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------Descarga de tanque  
-  //for (int cont=0;cont<=10;cont++)  {                   //38,30 ancho *alto nivel
-   // int y = map(cont, 1, 10, 3, 28); //peso y nivel     //<97 bajo /98 a 180 medio/ 181> alto
-    int ytank = map(range, 28, 350, 3, 28);
+  for (byte cont=0;cont<=10;cont++)  {                   //38,30 ancho *alto nivel
+    byte y = map(cont, 1, 10, 3, 28); //peso y nivel     //<97 bajo /98 a 180 medio/ 181> alto
+//    int ytank = map(range, 28, 350, 3, 28);
     ucg.setColor(0, 0, 0);//negro
     ucg.drawBox(91, 41, 36, y);
-    //delay (200);
- // }
+    delay (200);
+  }
 //----------------------------------------------------------------------
   delay(300); 
 //  ucg.clearScreen();
@@ -291,7 +292,7 @@ void loop(void){
  Serial.println(fecha.second());    // funcion que obtiene los segundos de la fecha completa
 
 
-//  //h=fecha.second();
+//h=fecha.second();
 //for (int i=0;i<=3;i++){
 //  if((fecha.second())==h1[i]){
 //    for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados
@@ -306,23 +307,24 @@ void loop(void){
 
   switch (fecha.second()){
     case 10:
-      for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
         mervo.write(pos);                   // servo va a posición pos
         delay(15);                          // espera 15ms para ir a la posición
      } break;
     case 30:
-      for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
         mervo.write(pos);                   // servo va a posición pos
         delay(15);                          // espera 15ms para ir a la posición
      } break;
     case 50:
-      for (int pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
         mervo.write(pos);                   // servo va a posición pos
         delay(15);                          // espera 15ms para ir a la posición
      } break;
     }
  
 // delay(1000); //espera de actualizacion y accin
+
 //---------------------------------------------------------------------  
 } //fin programa con pantalla
 

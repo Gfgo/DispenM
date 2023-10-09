@@ -7,7 +7,7 @@
       "Application": "Pcbnew",
       "Version":     "(5.1.12)-1"
     },
-    "CreationDate":  "2023-09-12T13:48:20-05:00"
+    "CreationDate":  "2023-10-09T14:32:23-05:00"
   },
   "GeneralSpecs":
   {
@@ -32,7 +32,7 @@
       "PadToPad":  0.200,
       "PadToTrack":  0.200,
       "TrackToTrack":  0.200,
-      "MinLineWidth":  0.250,
+      "MinLineWidth":  0.500,
       "TrackToRegion":  0.508,
       "RegionToRegion":  0.508
     }

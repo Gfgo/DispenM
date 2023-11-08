@@ -172,7 +172,7 @@
 //  ucg.clearScreen(); 
 //}
 
-//*************************************------------------------ nuevo prog 2023
+//*************************************------------------------ nuevo prog 2023 lora32u4
 #include <SPI.h>
 #include "Ucglib.h" 
 #include <RTClib.h>
@@ -258,7 +258,7 @@ void loop(void){
   ucg.setColor(128, 128, 128);
   ucg.drawBox(50,113, 53, 16);// Cuadro para refrescar pantalla lleno
   
-  if (range<=30){
+  if (range<=40){
   ucg.setColor(255, 12, 12);
   ucg.setPrintPos(50,125);
   ucg.print("LLeno "); }

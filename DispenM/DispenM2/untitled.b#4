@@ -59,10 +59,10 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="100" y2="0" width="0" layer="20"/>
-<wire x1="100" y1="0" x2="100" y2="80" width="0" layer="20"/>
-<wire x1="100" y1="80" x2="0" y2="80" width="0" layer="20"/>
-<wire x1="0" y1="80" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="-11.43" y1="-54.61" x2="88.57" y2="-54.61" width="0" layer="20"/>
+<wire x1="88.57" y1="-54.61" x2="88.57" y2="80" width="0" layer="20"/>
+<wire x1="88.57" y1="80" x2="-11.43" y2="80" width="0" layer="20"/>
+<wire x1="-11.43" y1="80" x2="-11.43" y2="-54.61" width="0" layer="20"/>
 </plain>
 <libraries>
 <library name="capacitor-wima" urn="urn:adsk.eagle:library:116">

@@ -650,5 +650,188 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(topic);
   Serial.print("Message: ");
   Serial.println(message);
-
 }
+
+//****************************************
+//address 0x3C oled
+//address 0x57 ds3231
+//address 0x68 ds3231
+//**************************************** pantalla y reloj interfaz ok2024
+
+include <RTClib.h>
+#include <Arduino.h>
+#include <U8g2lib.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <ESP32Servo.h> 
+#include <PubSubClient.h>                       //Envio a MQTT de UBI
+
+RTC_DS3231 rtc;
+Servo mervo;
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // All Boards without Reset of the Display
+U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 16, /* data=*/ 17, /* reset=*/ U8X8_PIN_NONE); 
+//U8G2_SSD1306_128X64_NONAME_F_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 16, /* dc=*/ 17, /* reset=*/ U8X8_PIN_NONE);
+
+byte hall=39;                  //GPIO39 sensor hall
+byte h=0;
+byte h1[]={10,30,50};
+const PROGMEM char mqttBroker[] = "industrial.api.ubidots.com"; //ubi
+char payload[300];                                              //ubi
+char topic[40];                                                 //ubi
+
+////******************ubi
+//bool findato = false; 
+//int8_t a=0;
+//PubSubClient client(ubidots);
+//void callback(char* topic, byte* payload, unsigned int length) {} 
+//void reconnect() {
+//  while (!client.connected()) {
+//  Serial.println(F("Attempting connection..."));
+//
+//  if (client.connect("0001", "BBFF-sDzTuSgHbyHsLZNx1U6RfrzCTT7gB4","")) { // MQTT Random ASCII&Ubi TOKEN  
+//    Serial.println(F("connected"));
+//    } else {
+//    Serial.print(F("failed, rc="));
+//    Serial.print(F(client.state()));
+//    Serial.println(F(" try again in 2 seconds"));
+//    delay(2000);
+//          }
+//  }
+//}
+////**************ubi
+
+void setup () {
+  Serial.begin(57600);
+  u8g2.begin();
+  u8g2.enableUTF8Print();
+
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    while (1) delay(10);
+  }
+
+  if (rtc.lostPower()) {
+    Serial.println("RTC lost power, let's set the time!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0)); //Cambair hora tiempo especifico
+  }
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
+  mervo.attach(32); //GPIO32 sensor hall
+  pinMode (hall, INPUT);
+//  client.setServer(mqttBroker, 1883);//ubi
+//  client.setCallback(callback);//ubi
+}
+
+void loop(void) {
+  DateTime fecha = rtc.now();
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_ncenB08_tr);  // choose a suitable font
+    u8g2.setDrawColor(1);
+
+    Serial.print(fecha.year(), DEC);Serial.print('/');Serial.print(fecha.month(), DEC);Serial.print('/');Serial.print(fecha.day(), DEC);
+    Serial.print(" ("); Serial.print(daysOfTheWeek[fecha.dayOfTheWeek()]);Serial.print(") ");
+    Serial.print(fecha.hour(), DEC);Serial.print(':');Serial.print(fecha.minute(), DEC);Serial.print(':');Serial.println(fecha.second(), DEC);
+    u8g2.setCursor(2,12);
+    u8g2.print(fecha.hour(), DEC);
+    u8g2.print(":");
+    u8g2.print(fecha.minute(), DEC);
+    u8g2.setCursor(2, 32);
+    u8g2.print("Tanque ");
+    u8g2.setCursor(2, 52);
+    u8g2.print("Disponible ");
+    u8g2.sendBuffer();
+
+    //--------------------------------------Hall
+  uint16_t value = analogRead (hall);
+  uint16_t range = get_gp2d12 (value);
+  u8g2.setCursor(5, 20);
+  Serial.println (value); //u8g2.println (value);
+  Serial.print (range);   //u8g2.print (range);
+  Serial.println (" mm"); //u8g2.println (" mm");
+//-------------------------------------Hall 
+
+  u8g2.setFont(u8g2_font_ncenB08_tr);  // choose a suitable font
+  u8g2.setDrawColor(1);
+  
+  u8g2.drawFrame(90,0,25,15);//------------------------Bateria
+  u8g2.drawBox(92,2,20,10);//x, y (posición) w, h (ancho, alto)
+//  for (byte cont=0;cont<=20;(cont=cont+2))  {
+//      u8g2.setDrawColor(0);
+//      u8g2.drawBox(92,2,cont,10);
+//      u8g2.sendBuffer();
+//  }
+
+
+  u8g2.setDrawColor(1);
+  u8g2.drawFrame(90,20,30,20);//----------------Tanque  
+  u8g2.drawBox(92,22,25,15);//x, y (posición) w, h (ancho, alto)
+//  for (byte cont=0;cont<=15;(cont=cont+2))  {
+//      u8g2.setDrawColor(0);
+//      u8g2.drawBox(92,22,25,cont);
+//      u8g2.sendBuffer();
+//  }
+
+  
+//------------------------------------------------------- apertura en hora
+      switch (fecha.second()){
+    case 10:
+      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+        mervo.write(pos);                   // servo va a posición pos
+        delay(15);                          // espera 15ms para ir a la posición
+     } break;
+    case 30:
+      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+        mervo.write(pos);                   // servo va a posición pos
+        delay(15);                          // espera 15ms para ir a la posición
+     } break;
+    case 50:
+      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+        mervo.write(pos);                   // servo va a posición pos
+        delay(15);                          // espera 15ms para ir a la posición
+     } break;
+    }
+//------------------------------------------------------- apertura en hora
+    
+  //delay(900);
+}
+
+//--------------------------------------------hall
+uint16_t get_gp2d12 (uint16_t value) {
+    if (value < 10) value = 10;
+    return ((67870.0 / (value - 3.0)) - 40.0);}
+//--------------------------------------------hall
+
+//void reconnect() {
+//  while (!client.connected()) {
+//    Serial.print("Attempting MQTT connection...");
+//    if (client.connect("ubidots", UBITOKEN, "")) {
+//      Serial.println("connected");
+//    } else {
+//      Serial.print("failed, rc=");
+//      Serial.print(client.state());
+//      Serial.println(" try again in 5 seconds");
+//      delay(5000);
+//     }
+//  }
+//}
+//
+//void publishToUbidots(int value) {
+//  String payload = "{\"value\":" + String(value) + "}";
+//  client.publish(sensorTopic, payload.c_str());
+//  Serial.println("Published to Ubidots: " + payload);
+//}
+//
+//void callback(char* topic, byte* payload, unsigned int length) {
+//  String message = "";
+//  for (int i = 0; i < length; i++) {
+//    message += (char)payload[i];
+//  }
+//  Serial.print("Message received in topic: ");
+//  Serial.println(topic);
+//  Serial.print("Message: ");
+//  Serial.println(message);
+//}

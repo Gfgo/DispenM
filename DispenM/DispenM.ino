@@ -339,8 +339,6 @@ uint16_t get_gp2d12 (uint16_t value) {
 falta abrir motor cuando sea la hora adecuada (comparar entre 
       hora actual y la hora objetivo cuando sea igual accionar) ---- ya pero cuadrado con segundos
 Llenar plato hasta sensor diga que esta lleno                   ---- ya pero alerta sale abajo
-falta que la interrupcion me interrumpa y mande a inicio
-(falta seleccionar entre horarios de comida)-no por ahora
 */
 
 
@@ -658,7 +656,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //address 0x68 ds3231
 //**************************************** pantalla y reloj interfaz ok2024
 
-include <RTClib.h>
+#include <RTClib.h>
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <SPI.h>
@@ -674,9 +672,12 @@ char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursd
 U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 16, /* data=*/ 17, /* reset=*/ U8X8_PIN_NONE); 
 //U8G2_SSD1306_128X64_NONAME_F_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 16, /* dc=*/ 17, /* reset=*/ U8X8_PIN_NONE);
 
-byte hall=39;                  //GPIO39 sensor hall
+int hall=27;                  //GPIO27 sensor hall
+byte bot1=34;                  //GPIO34 Boton blanco
+byte bot2=35;                  //GPIO35 Boton amarillo
+
 byte h=0;
-byte h1[]={10,30,50};
+byte h1[]={10,30,50};          //Horarios apertura puerta
 const PROGMEM char mqttBroker[] = "industrial.api.ubidots.com"; //ubi
 char payload[300];                                              //ubi
 char topic[40];                                                 //ubi
@@ -703,9 +704,13 @@ char topic[40];                                                 //ubi
 ////**************ubi
 
 void setup () {
-  Serial.begin(57600);
+  Serial.begin(9600);
   u8g2.begin();
   u8g2.enableUTF8Print();
+  mervo.attach(32);           //GPIO32 servo
+  pinMode (hall, INPUT);      // Sensor hall
+  pinMode (bot1, INPUT);      // Sensor bot1
+  pinMode (bot2, INPUT);      // Sensor bot2
 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -720,8 +725,7 @@ void setup () {
   }
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
-  mervo.attach(32); //GPIO32 sensor hall
-  pinMode (hall, INPUT);
+
 //  client.setServer(mqttBroker, 1883);//ubi
 //  client.setCallback(callback);//ubi
 }
@@ -745,13 +749,21 @@ void loop(void) {
     u8g2.print("Disponible ");
     u8g2.sendBuffer();
 
-    //--------------------------------------Hall
-  uint16_t value = analogRead (hall);
-  uint16_t range = get_gp2d12 (value);
-  u8g2.setCursor(5, 20);
-  Serial.println (value); //u8g2.println (value);
-  Serial.print (range);   //u8g2.print (range);
-  Serial.println (" mm"); //u8g2.println (" mm");
+//--------------------------------------Hall
+    int valbot1 = digitalRead(bot1);        //leer estado boton1
+    uint16_t value = analogRead (hall);     //Convierta voltaje a distancia
+    double distance = (get_IR (value)+5); 
+    Serial.println (value);                 
+    Serial.print (distance);
+    Serial.println (" cm");
+    u8g2.setCursor(2, 90); u8g2.print (distance); u8g2.sendBuffer();
+
+//  uint16_t value = analogRead (hall);
+//  uint16_t range = get_gp2d12 (value);
+//  u8g2.setCursor(2, 90);    u8g2.print (range);
+//  Serial.println (value); //u8g2.print (value);
+//  Serial.print (range);  
+//  Serial.println (" mm"); //u8g2.print (" mm");
 //-------------------------------------Hall 
 
   u8g2.setFont(u8g2_font_ncenB08_tr);  // choose a suitable font
@@ -775,34 +787,55 @@ void loop(void) {
 //      u8g2.sendBuffer();
 //  }
 
-  
-//------------------------------------------------------- apertura en hora
-      switch (fecha.second()){
-    case 10:
-      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
-        mervo.write(pos);                   // servo va a posición pos
-        delay(15);                          // espera 15ms para ir a la posición
-     } break;
-    case 30:
-      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
-        mervo.write(pos);                   // servo va a posición pos
-        delay(15);                          // espera 15ms para ir a la posición
-     } break;
-    case 50:
-      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
-        mervo.write(pos);                   // servo va a posición pos
-        delay(15);                          // espera 15ms para ir a la posición
-     } break;
-    }
-//------------------------------------------------------- apertura en hora
+//----*************--------cargue de alimento
+int val = digitalRead(bot1);
+if (val == HIGH) {
+        Serial.println ("blanco");
+                  for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+                  mervo.write(pos);                   // servo va a posición pos
+                  delay(15);                          // espera 15ms para ir a la posición
+                }val =0;
+  } 
+int val2 = digitalRead(bot2);  // read input value
+if (val2 == HIGH) {
+       Serial.println ("amarillo");
+                 for (byte pos=180; pos>=1; pos--) { // va de 0 a 180 grados en pasos de 1 grado
+                 mervo.write(pos);                   // servo va a posición pos
+                 delay(15);                          // espera 15ms para ir a la posición
+               }val2 =0;
+ }
+//----*************--------cargue de alimento     
+//------------------------------------------------------- apertura en hora alimentacion
+//      switch (fecha.second()){
+//    case 10:
+//      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+//        mervo.write(pos);                   // servo va a posición pos
+//        delay(15);                          // espera 15ms para ir a la posición
+//     } break;
+//    case 30:
+//      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+//        mervo.write(pos);                   // servo va a posición pos
+//        delay(15);                          // espera 15ms para ir a la posición
+//     } break;
+//    case 50:
+//      for (byte pos=0; pos<=180; pos++) { // va de 0 a 180 grados en pasos de 1 grado
+//        mervo.write(pos);                   // servo va a posición pos
+//        delay(15);                          // espera 15ms para ir a la posición
+//     } break;
+//    }
+//------------------------------------------------------- apertura en hora alimentacion
     
   //delay(900);
-}
+} //******************************************--------------------------------------------------------Fin programa
 
 //--------------------------------------------hall
-uint16_t get_gp2d12 (uint16_t value) {
-    if (value < 10) value = 10;
-    return ((67870.0 / (value - 3.0)) - 40.0);}
+double get_IR (uint16_t value) {
+        if (value < 16)  value = 16;
+        return 2076.0 / (value - 11.0);}
+
+//uint16_t get_gp2d12 (uint16_t value) {
+//    if (value < 10) value = 10;
+//    return ((67870.0 / (value - 3.0)) - 40.0);}
 //--------------------------------------------hall
 
 //void reconnect() {

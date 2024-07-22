@@ -654,7 +654,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //address 0x3C oled
 //address 0x57 ds3231
 //address 0x68 ds3231
-//**************************************** pantalla y reloj interfaz ok2024
+//**************************************** pantalla y reloj interfaz oknuevo 07/2024 
 
 #include <RTClib.h>
 #include <Arduino.h>

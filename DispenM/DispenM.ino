@@ -868,3 +868,54 @@ double get_IR (uint16_t value) {
 //  Serial.print("Message: ");
 //  Serial.println(message);
 //}
+
+
+//-----------reloj y pantalla esp amarillo
+//#include "RTClib.h"
+//#include <Arduino.h>
+//#include <U8g2lib.h>
+//#include <Wire.h>
+//
+//RTC_DS3231 rtc;
+//
+//char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 18, /* data=*/ 21, /* reset=*/ U8X8_PIN_NONE);
+//
+//void setup () {
+//  Serial.begin(115200);
+//  u8g2.begin();
+//  if (! rtc.begin()) {
+//    Serial.println("Couldn't find RTC");
+//    Serial.flush();
+//    while (1) delay(10);
+//  }
+//  if (rtc.lostPower()) {
+//    Serial.println("RTC lost power, let's set the time!"); sketch was compiled
+//    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));;
+//  }
+//}
+//
+//void loop () {
+//    DateTime now = rtc.now();
+//
+//    Serial.print(now.year(), DEC);  Serial.print('/');
+//    Serial.print(now.month(), DEC); Serial.print('/');
+//    Serial.print(now.day(), DEC);   Serial.print(" (");
+//    Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
+//    Serial.print(") ");
+//    Serial.print(now.hour(), DEC);    Serial.print(':');
+//    Serial.print(now.minute(), DEC);  Serial.print(':');
+//    Serial.println(now.second(), DEC);
+//  
+//    Serial.print("Temperature: ");
+//    Serial.print(rtc.getTemperature());
+//  u8g2.clearBuffer();          // clear the internal memory
+//  u8g2.setFont(u8g2_font_ncenB08_tr); // choose a suitable font
+//  u8g2.setCursor(2,10);u8g2.print("Hello World!");  // write something to the internal memory
+//  u8g2.setCursor(2,20);         // transfer internal memory to the display
+//  u8g2.print(now.hour(), DEC);    u8g2.print(":");
+//  u8g2.print(now.minute(), DEC);  u8g2.print(':');
+//  u8g2.println(now.second(), DEC);
+//  u8g2.sendBuffer();
+//    delay(900);
+//}
